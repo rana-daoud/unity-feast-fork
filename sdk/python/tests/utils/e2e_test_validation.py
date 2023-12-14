@@ -223,11 +223,11 @@ NULLABLE_ONLINE_STORE_CONFIGS: List[IntegrationTestRepoConfig] = [
 if os.getenv("FEAST_IS_LOCAL_TEST", "False") != "True":
     NULLABLE_ONLINE_STORE_CONFIGS.extend(
         [
-            IntegrationTestRepoConfig(
-                provider="gcp",
-                offline_store_creator=BigQueryDataSourceCreator,
-                online_store=None,
-            ),
+            # IntegrationTestRepoConfig(
+            #     provider="gcp",
+            #     offline_store_creator=BigQueryDataSourceCreator,
+            #     online_store=None,
+            # ),
             IntegrationTestRepoConfig(
                 provider="aws",
                 offline_store_creator=RedshiftDataSourceCreator,

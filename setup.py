@@ -144,6 +144,10 @@ HAZELCAST_REQUIRED = [
     "hazelcast-python-client>=5.1",
 ]
 
+AEROSPIKE_REQUIRED = [
+    "aerospike>=8.0.0",
+]
+
 CI_REQUIRED = (
     [
         "build",
@@ -203,6 +207,7 @@ CI_REQUIRED = (
     + AZURE_REQUIRED
     + ROCKSET_REQUIRED
     + HAZELCAST_REQUIRED
+    + AEROSPIKE_REQUIRED
 )
 
 
@@ -369,6 +374,7 @@ setup(
         "docs": DOCS_REQUIRED,
         "cassandra": CASSANDRA_REQUIRED,
         "hazelcast": HAZELCAST_REQUIRED,
+        "aerospike": AEROSPIKE_REQUIRED,
         "rockset": ROCKSET_REQUIRED,
     },
     include_package_data=True,
