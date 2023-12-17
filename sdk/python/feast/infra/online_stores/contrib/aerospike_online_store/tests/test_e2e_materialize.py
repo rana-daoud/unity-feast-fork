@@ -3,13 +3,19 @@ import os
 from datetime import datetime
 
 import pytest
-from feast import FeatureStore
-from feast.infra.online_stores.contrib.aerospike_online_store.aerospike_online_store import AerospikeOnlineStoreConfig
-from feast.repo_config import RegistryConfig, RepoConfig
 
-from feast.infra.online_stores.contrib.aerospike_online_store.aerospike_client import AerospikeClient
-from feast.infra.online_stores.contrib.aerospike_online_store.tests.test_entity.driver_repo import \
-    driver, driver_hourly_stats_view
+from feast import FeatureStore
+from feast.infra.online_stores.contrib.aerospike_online_store.aerospike_client import (
+    AerospikeClient,
+)
+from feast.infra.online_stores.contrib.aerospike_online_store.aerospike_online_store import (
+    AerospikeOnlineStoreConfig,
+)
+from feast.infra.online_stores.contrib.aerospike_online_store.tests.test_entity.driver_repo import (
+    driver,
+    driver_hourly_stats_view,
+)
+from feast.repo_config import RegistryConfig, RepoConfig
 
 AEROSPIKE_ONLINE_STORE_CLASS = "feast_custom_online_store.aerospike_online_store.AerospikeOnlineStore"
 TEST_REGISTRY_DATA_PATH = "test_entity/data/registry.db"

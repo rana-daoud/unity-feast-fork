@@ -1,6 +1,8 @@
-from feast import FeatureStore
-import requests
 import json
+
+import requests
+
+from feast import FeatureStore
 
 
 def run_demo_http():

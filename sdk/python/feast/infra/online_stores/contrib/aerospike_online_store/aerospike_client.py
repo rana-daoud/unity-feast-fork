@@ -1,6 +1,6 @@
 import logging
-import aerospike
 
+import aerospike
 
 logger = logging.getLogger(__name__)
 

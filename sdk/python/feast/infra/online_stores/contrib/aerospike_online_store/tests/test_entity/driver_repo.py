@@ -1,9 +1,8 @@
 from datetime import timedelta
 
-from feast.types import Float32, Int64, String
+from feast import Entity, FeatureView, FileSource
 from feast.field import Field
-
-from feast import Entity, FileSource, FeatureView
+from feast.types import Float32, Int64, String
 
 driver_hourly_stats = FileSource(
     path="test_entity/data/driver_stats_with_string.parquet",

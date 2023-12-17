@@ -1,15 +1,16 @@
 import base64
 import logging
 from datetime import datetime
-from typing import Sequence, List, Optional, Tuple, Dict, Callable, Any
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import pytz
 
 import feast.type_map
-from feast import RepoConfig, FeatureView, Entity
-from feast.infra.online_stores.contrib.aerospike_online_store.aerospike_client import AerospikeClient
-
+from feast import Entity, FeatureView, RepoConfig
 from feast.infra.key_encoding_utils import serialize_entity_key
+from feast.infra.online_stores.contrib.aerospike_online_store.aerospike_client import (
+    AerospikeClient,
+)
 from feast.infra.online_stores.online_store import OnlineStore
 from feast.protos.feast.types.EntityKey_pb2 import EntityKey as EntityKeyProto
 from feast.protos.feast.types.Value_pb2 import Value as ValueProto

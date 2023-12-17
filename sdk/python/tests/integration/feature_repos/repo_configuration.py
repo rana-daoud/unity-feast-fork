@@ -27,18 +27,18 @@ from tests.integration.feature_repos.integration_test_repo_config import (
 from tests.integration.feature_repos.universal.data_source_creator import (
     DataSourceCreator,
 )
-# from tests.integration.feature_repos.universal.data_sources.bigquery import (
-#     BigQueryDataSourceCreator,
-# )
+from tests.integration.feature_repos.universal.data_sources.bigquery import (
+    BigQueryDataSourceCreator,
+)
 from tests.integration.feature_repos.universal.data_sources.file import (
     FileDataSourceCreator,
 )
 from tests.integration.feature_repos.universal.data_sources.redshift import (
     RedshiftDataSourceCreator,
 )
-# from tests.integration.feature_repos.universal.data_sources.snowflake import (
-#     SnowflakeDataSourceCreator,
-# )
+from tests.integration.feature_repos.universal.data_sources.snowflake import (
+    SnowflakeDataSourceCreator,
+)
 from tests.integration.feature_repos.universal.feature_views import (
     conv_rate_plus_100_feature_view,
     create_conv_rate_request_source,
@@ -51,9 +51,9 @@ from tests.integration.feature_repos.universal.feature_views import (
     create_order_feature_view,
     create_pushable_feature_view,
 )
-# from tests.integration.feature_repos.universal.online_store.bigtable import (
-#     BigtableOnlineStoreCreator,
-# )
+from tests.integration.feature_repos.universal.online_store.bigtable import (
+    BigtableOnlineStoreCreator,
+)
 from tests.integration.feature_repos.universal.online_store.datastore import (
     DatastoreOnlineStoreCreator,
 )
@@ -101,9 +101,9 @@ ROCKSET_CONFIG = {
 
 OFFLINE_STORE_TO_PROVIDER_CONFIG: Dict[str, DataSourceCreator] = {
     "file": ("local", FileDataSourceCreator),
-    # "bigquery": ("gcp", BigQueryDataSourceCreator),
+    "bigquery": ("gcp", BigQueryDataSourceCreator),
     "redshift": ("aws", RedshiftDataSourceCreator),
-    # "snowflake": ("aws", SnowflakeDataSourceCreator),
+    "snowflake": ("aws", SnowflakeDataSourceCreator),
 }
 
 AVAILABLE_OFFLINE_STORES: List[Tuple[str, Type[DataSourceCreator]]] = [
@@ -120,9 +120,9 @@ AVAILABLE_ONLINE_STORES: Dict[
 if os.getenv("FEAST_IS_LOCAL_TEST", "False") != "True":
     AVAILABLE_OFFLINE_STORES.extend(
         [
-            # ("gcp", BigQueryDataSourceCreator),
+            ("gcp", BigQueryDataSourceCreator),
             ("aws", RedshiftDataSourceCreator),
-            # ("aws", SnowflakeDataSourceCreator),
+            ("aws", SnowflakeDataSourceCreator),
         ]
     )
 
@@ -182,7 +182,7 @@ if os.getenv("FEAST_LOCAL_ONLINE_CONTAINER", "False").lower() == "true":
         "redis": (REDIS_CONFIG, RedisOnlineStoreCreator),
         "dynamodb": (DYNAMO_CONFIG, DynamoDBOnlineStoreCreator),
         "datastore": ("datastore", DatastoreOnlineStoreCreator),
-        # "bigtable": ("bigtable", BigtableOnlineStoreCreator),
+        "bigtable": ("bigtable", BigtableOnlineStoreCreator),
     }
 
     for key, replacement in replacements.items():
