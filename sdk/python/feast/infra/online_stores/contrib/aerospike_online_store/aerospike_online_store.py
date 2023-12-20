@@ -84,9 +84,9 @@ class AerospikeOnlineStore(OnlineStore):
             )
 
             # timestamp = _to_naive_utc(timestamp)
-            # TODO make it general from ValueProto
-            entity_key_value = entity_key.entity_values.pop()
-            # entity_key_value = entity_key.entity_values[0].int64_val
+            # TODO use generic key and not int
+            # entity_key_value = entity_key.entity_values.pop()
+            entity_key_value = entity_key.entity_values[0].int64_val
             aerospike_key = entity_key_value
             feature_values_dict = self.generate_feature_values_dict(values)
             bins_to_update = {
@@ -112,7 +112,8 @@ class AerospikeOnlineStore(OnlineStore):
         logger.info(f"AerospikeOnlineStore - Starting online read from feature view [{table.name}]")
         feature_views_config = config.online_store.feature_views_config
 
-        aerospike_keys = [item.entity_values[0].string_val for item in entity_keys]
+        # TODO use generic key and not only int
+        aerospike_keys = [item.entity_values[0].int64_val for item in entity_keys]
 
         client = AerospikeClient(config.online_store.aerospike_config, logger)
         result: List[Tuple[Optional[datetime], Optional[Dict[str, ValueProto]]]] = []

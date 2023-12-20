@@ -35,7 +35,7 @@ test_aerospike_config = {
 }
 
 test_feature_views_config = {
-    "driver_hourly_stats": {
+    "driverStats": {
         AEROSPIKE_NAMESPACE: TEST_AEROSPIKE_NAMESPACE,
         AEROSPIKE_SET_NAME: TEST_AEROSPIKE_SET
     }
@@ -43,7 +43,7 @@ test_feature_views_config = {
 
 online_store_config = AerospikeOnlineStoreConfig(
     aerospike_config=test_aerospike_config,
-    feature_views_config=test_feature_views_config)  # TODO
+    feature_views_config=test_feature_views_config)  # TODO check with Fabi how to recive the namespace/set?
 client = AerospikeClient(test_aerospike_config, logger)
 
 
@@ -66,13 +66,13 @@ def test_user_entity_end_to_end():
 
     # Read features from online store
     online_features = fs.get_online_features(
-        features=["driver_hourly_stats:avg_daily_trips", "driver_hourly_stats:string_feature"],
+        features=["driverStats:avg_daily_trips", "driverStats:string_feature"],
         entity_rows=[{"driver_id": "1004"}])
     assert online_features is not None
     feature_vector = online_features.to_dict()
-    avg_daily_trips = feature_vector["avgDailyTrips"][0]
-    assert avg_daily_trips == 1
-    string_feature = feature_vector["stringFeature"][0]
+    avg_daily_trips = feature_vector["avg_daily_trips"][0]
+    assert avg_daily_trips == 539
+    string_feature = feature_vector["string_feature"][0]
     assert string_feature == "test"
 
 
