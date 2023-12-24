@@ -1,4 +1,3 @@
-import base64
 import logging
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
@@ -7,10 +6,11 @@ import pytz
 
 import feast.type_map
 from feast import Entity, FeatureView, RepoConfig
-from feast.infra.key_encoding_utils import serialize_entity_key
 from feast.infra.online_stores.contrib.aerospike_online_store.aerospike_client import (
     AerospikeClient,
 )
+from feast.infra.online_stores.contrib.postgres import _to_naive_utc
+from feast.infra.online_stores.helpers import compute_entity_id
 from feast.infra.online_stores.online_store import OnlineStore
 from feast.protos.feast.types.EntityKey_pb2 import EntityKey as EntityKeyProto
 from feast.protos.feast.types.Value_pb2 import Value as ValueProto
@@ -29,7 +29,7 @@ class AerospikeOnlineStoreConfig(FeastConfigBaseModel):
     """
     type = "aerospike"
     aerospike_config: dict = {}
-    feature_views_config: dict = {}  # map feature_view to namespace/set in aerospike
+    feature_views_config: dict = {}  # map feature_view to namespace/set/short_fv_name in aerospike
 
 
 class AerospikeOnlineStore(OnlineStore):
@@ -75,32 +75,30 @@ class AerospikeOnlineStore(OnlineStore):
     def update_records(self, client, data, feature_view_name, progress, config):
         feature_views_config = config.online_store.feature_views_config
         feature_view_details = feature_views_config[feature_view_name]
-
-        failure_count = 0
+        feature_view_short_name = feature_view_details["short_fv_name"]
         for entity_key, values, timestamp, created in data:
-            entity_key_bin = serialize_entity_key(
-                entity_key,
-                entity_key_serialization_version=2,
-            )
+            try:
+                entity_id = compute_entity_id(
+                    entity_key,
+                    entity_key_serialization_version=config.entity_key_serialization_version,
+                )
 
-            # timestamp = _to_naive_utc(timestamp)
-            # TODO use generic key and not int
-            # entity_key_value = entity_key.entity_values.pop()
-            entity_key_value = entity_key.entity_values[0].int64_val
-            aerospike_key = entity_key_value
-            feature_values_dict = self.generate_feature_values_dict(values)
-            bins_to_update = {
-                feature_view_name: feature_values_dict
-            }
-            # insert/update the bin based on primary key
-            success = client.update_record_if_existed(feature_view_details[AEROSPIKE_NAMESPACE],
-                                                      feature_view_details[AEROSPIKE_SET_NAME],
-                                                      aerospike_key,
-                                                      bins_to_update)
-            if not success:
-                failure_count += 1
-            if progress and success:
-                progress(1)
+                timestamp = _to_naive_utc(timestamp)
+                aerospike_key = entity_id
+                feature_values_dict = self.generate_feature_values_dict(values)
+                bins_to_update = {
+                    feature_view_short_name: feature_values_dict
+                }
+                # insert/update the bin based on primary key which is entity id
+                client.put_record(feature_view_details[AEROSPIKE_NAMESPACE],
+                                  feature_view_details[AEROSPIKE_SET_NAME],
+                                  aerospike_key,
+                                  bins_to_update)
+
+                if progress:
+                    progress(1)
+            except Exception as ex:
+                logger.error("Failed to put record " + str(ex))
 
     def online_read(
             self,
@@ -112,8 +110,13 @@ class AerospikeOnlineStore(OnlineStore):
         logger.info(f"AerospikeOnlineStore - Starting online read from feature view [{table.name}]")
         feature_views_config = config.online_store.feature_views_config
 
-        # TODO use generic key and not only int
-        aerospike_keys = [item.entity_values[0].int64_val for item in entity_keys]
+        entity_ids = [
+            compute_entity_id(
+                entity_key,
+                entity_key_serialization_version=config.entity_key_serialization_version,
+            )
+            for entity_key in entity_keys
+        ]
 
         client = AerospikeClient(config.online_store.aerospike_config, logger)
         result: List[Tuple[Optional[datetime], Optional[Dict[str, ValueProto]]]] = []
@@ -122,9 +125,9 @@ class AerospikeOnlineStore(OnlineStore):
             feature_view_details = feature_views_config[feature_view_name]
             records = client.get_records(feature_view_details[AEROSPIKE_NAMESPACE],
                                          feature_view_details[AEROSPIKE_SET_NAME],
-                                         aerospike_keys)
+                                         entity_ids)
 
-            result = self._prepare_read_result(feature_view_name, records, requested_features)
+            result = self._prepare_read_result(feature_view_details["short_fv_name"], records, requested_features)
             logger.info(f"AerospikeOnlineStore - Finished online read successfully from feature view [{table.name}]")
         except Exception as ex:
             logger.error(f"AerospikeOnlineStore - Failed while updating records of feature view [{table.name}]" + str(ex))
@@ -146,10 +149,10 @@ class AerospikeOnlineStore(OnlineStore):
         return feature_values_dict
 
     @staticmethod
-    def _prepare_read_result(feature_view_name, records, requested_features):
+    def _prepare_read_result(feature_view_short_name, records, requested_features):
         result: List[Tuple[Optional[datetime], Optional[Dict[str, ValueProto]]]] = []
         for primary_key, bins in records.items():
-            features = bins[feature_view_name]
+            features = bins[feature_view_short_name]
             res = {}
             for feature_name, value in features.items():
                 if feature_name in requested_features:

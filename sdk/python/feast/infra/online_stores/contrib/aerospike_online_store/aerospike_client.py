@@ -23,17 +23,17 @@ class AerospikeClient:
         self._client.connect(client_config['user'], client_config['password'])
         self._logger.info("Aerospike client is connected successfully")
 
-    def update_record_if_existed(self, namespace, set_name, key, bins):
-        if not namespace or not set_name or not key or not bins:
-            self._logger.error("One of the required params [namespace, set_name, key, bins] is None")
-            return False
-        try:
-            update_policy = {'exists': aerospike.POLICY_EXISTS_UPDATE}  # update only if key exists
-            self._client.put((namespace, set_name, key), bins, policy=update_policy)
-            return True
-        except Exception as ex:
-            self._logger.error(f"Failed to update record with primary key [{key}] : {str(ex)}")
-            return False
+    # def update_record_if_existed(self, namespace, set_name, key, bins):
+    #     if not namespace or not set_name or not key or not bins:
+    #         self._logger.error("One of the required params [namespace, set_name, key, bins] is None")
+    #         return False
+    #     try:
+    #         # update_policy = {'exists': aerospike.POLICY_EXISTS_UPDATE}  # update only if key exists
+    #         self._client.put((namespace, set_name, key), bins)  #, policy=update_policy)
+    #         return True
+    #     except Exception as ex:
+    #         self._logger.error(f"Failed to update record with primary key [{key}] : {str(ex)}")
+    #         return False
 
     def put_record(self, namespace, set_name, key, bins):
         try:

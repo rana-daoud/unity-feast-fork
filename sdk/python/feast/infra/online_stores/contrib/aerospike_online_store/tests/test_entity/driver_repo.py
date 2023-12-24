@@ -14,7 +14,7 @@ driver = Entity(name="driver_id", description="driver id")
 
 
 driver_hourly_stats_view = FeatureView(
-    name="driverStats",
+    name="driver_stats",
     entities=[driver],
     ttl=timedelta(days=365),
     schema=[

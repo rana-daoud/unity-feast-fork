@@ -1,3 +1,6 @@
+# This is local test for online store
+# TODO: remove from branch
+
 import logging
 import os
 from datetime import datetime
@@ -15,6 +18,7 @@ from feast.infra.online_stores.contrib.aerospike_online_store.tests.test_entity.
     driver,
     driver_hourly_stats_view,
 )
+from feast.infra.online_stores.helpers import compute_entity_id
 from feast.repo_config import RegistryConfig, RepoConfig
 
 AEROSPIKE_ONLINE_STORE_CLASS = "feast_custom_online_store.aerospike_online_store.AerospikeOnlineStore"
@@ -31,13 +35,14 @@ test_aerospike_config = {
     'host': 'aerospike-ci.ecs.isappcloud.com',
     'region': 'us-west-2',
     'port': '3000',
-    'timeout': '50000'
+    'timeout': '200000'
 }
 
 test_feature_views_config = {
-    "driverStats": {
+    "driver_stats": {
         AEROSPIKE_NAMESPACE: TEST_AEROSPIKE_NAMESPACE,
-        AEROSPIKE_SET_NAME: TEST_AEROSPIKE_SET
+        AEROSPIKE_SET_NAME: TEST_AEROSPIKE_SET,
+        "short_fv_name": "driveSt"
     }
 }
 
@@ -66,7 +71,7 @@ def test_user_entity_end_to_end():
 
     # Read features from online store
     online_features = fs.get_online_features(
-        features=["driverStats:avg_daily_trips", "driverStats:string_feature"],
+        features=["driver_stats:avg_daily_trips", "driver_stats:string_feature"],
         entity_rows=[{"driver_id": "1004"}])
     assert online_features is not None
     feature_vector = online_features.to_dict()

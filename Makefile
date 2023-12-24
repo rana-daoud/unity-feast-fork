@@ -253,7 +253,7 @@ test-python-universal-postgres-online:
  test-python-universal-aerospike-online:
 	PYTHONPATH='.' \
 		FULL_REPO_CONFIGS_MODULE=sdk.python.feast.infra.online_stores.contrib.aerospike_repo_configuration \
-		PYTEST_PLUGINS=sdk.python.tests.integration.feature_repos.universal.online_store.mysql \
+		PYTEST_PLUGINS=sdk.python.tests.integration.feature_repos.universal.online_store.aerospike \
 		FEAST_USAGE=False \
 		IS_TEST=True \
 		python -m pytest -n 8 --integration \
